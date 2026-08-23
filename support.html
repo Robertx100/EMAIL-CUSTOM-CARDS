@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support | SigHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Space Grotesk', sans-serif; background-color: #fbbf24; }
+        .neo-border { border: 4px solid #000; }
+        .neo-shadow { box-shadow: 8px 8px 0px 0px #000; }
+        .btn-press:active { transform: translate(4px, 4px); box-shadow: 0px 0px 0px 0px #000; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <header class="max-w-4xl mx-auto flex justify-between items-center mb-12">
+        <a href="index.html" class="neo-border bg-white px-4 py-2 neo-shadow font-black text-xl uppercase italic">SIGHUB</a>
+        <div class="font-bold text-xs uppercase bg-black text-white px-2 py-1">Support Desk</div>
+    </header>
+    <main class="max-w-3xl mx-auto">
+        <section class="mb-12">
+            <h1 class="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-none mb-6">Need a <span class="bg-white px-4 neo-border">Hand?</span></h1>
+            <div class="bg-white neo-border p-6 neo-shadow">
+                <p class="text-xl font-bold italic">The interns are standing by. We usually reply in under 2 hours unless we're hunting for bugs (or caffeine).</p>
+            </div>
+        </section>
+        <form class="space-y-6 bg-white neo-border p-8 neo-shadow mb-20" onsubmit="event.preventDefault(); alert('Sent!');">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <input type="text" placeholder="Your Name" class="neo-border p-4 font-bold focus:bg-yellow-100 outline-none">
+                <input type="email" placeholder="Email Address" class="neo-border p-4 font-bold focus:bg-yellow-100 outline-none">
+            </div>
+            <textarea rows="4" placeholder="What's the issue?" class="w-full neo-border p-4 font-bold focus:bg-yellow-100 outline-none resize-none"></textarea>
+            <button class="w-full bg-black text-white p-6 text-2xl font-black uppercase btn-press">Send Message -></button>
+        </form>
+    </main>
+</body>
+</html>
