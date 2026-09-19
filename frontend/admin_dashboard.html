@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SigHub Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .neo-shadow { box-shadow: 4px 4px 0 #000; }
+        .neo-border { border: 3px solid #000; }
+    </style>
+</head>
+<body class="p-4 md:p-8 bg-amber-50 font-sans">
+    <div class="max-w-5xl mx-auto bg-white p-6 md:p-8 neo-border neo-shadow">
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center border-b-4 border-black pb-4 mb-6">
+            <div>
+                <h1 class="text-3xl font-black uppercase tracking-tight">SigHub Executive Analytics</h1>
+                <p class="text-xs font-bold text-gray-600">Server-verified Postgres transaction audit & intelligence</p>
+            </div>
+            <div class="mt-4 md:mt-0 flex gap-2">
+                <input type="password" id="admin-key" value="" placeholder="Enter Admin Secret" class="neo-border p-2 text-xs font-bold w-48">
+                <button onclick="fetchServerStats()" class="bg-yellow-300 neo-border px-4 py-2 text-xs font-black uppercase hover:bg-yellow-400">Authenticate & Load</button>
+            </div>
+        </header>
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-emerald-100 neo-border p-4 neo-shadow">
+                <div class="text-xs font-black uppercase text-emerald-800">Total Revenue</div>
+                <div class="text-3xl font-black text-emerald-900 mt-1" id="kpi-revenue">$0.00</div>
+            </div>
+            <div class="bg-cyan-100 neo-border p-4 neo-shadow">
+                <div class="text-xs font-black uppercase text-cyan-800">Paid Orders</div>
+                <div class="text-3xl font-black text-cyan-900 mt-1" id="kpi-paid">0</div>
+            </div>
+            <div class="bg-purple-100 neo-border p-4 neo-shadow">
+                <div class="text-xs font-black uppercase text-purple-800">Total Checkout Attempts</div>
+                <div class="text-3xl font-black text-purple-900 mt-1" id="kpi-total">0</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="neo-border p-4 bg-white">
+                <h2 class="font-black text-md mb-2 uppercase border-b-2 border-black pb-1">Archetype Popularity (Server DB)</h2>
+                <pre id="archetype-view" class="bg-gray-100 p-3 text-xs font-mono overflow-auto max-h-48"></pre>
+            </div>
+            <div class="neo-border p-4 bg-white">
+                <h2 class="font-black text-md mb-2 uppercase border-b-2 border-black pb-1">UX Event & Toggle Tracking</h2>
+                <pre id="toggle-view" class="bg-gray-100 p-3 text-xs font-mono overflow-auto max-h-48"></pre>
+            </div>
+        </div>
+
+        <!-- Recent Audit Log Table -->
+        <div class="neo-border p-4 bg-white">
+            <h2 class="font-black text-md mb-4 uppercase border-b-2 border-black pb-1">Recent SQLite Purchases</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-black text-white font-bold uppercase">
+                            <th class="p-2">ID</th>
+                            <th class="p-2">Customer Email</th>
+                            <th class="p-2">Archetype</th>
+                            <th class="p-2">Status</th>
+                            <th class="p-2">Stripe Session ID</th>
+                            <th class="p-2">Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody id="purchases-table-body" class="font-mono">
+                        <tr>
+                            <td colspan="6" class="p-4 text-center text-gray-500 font-sans">Click Refresh to load database audit records.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="stats_engine.js"></script>
+    <script>
+        async function fetchServerStats() {
+            const secretInput = document.getElementById('admin-key');
+            const secret = secretInput ? secretInput.value.trim() : '';
+
+            if (!secret) {
+                document.getElementById('purchases-table-body').innerHTML = 
+                    '<tr><td colspan="6" class="p-4 text-center text-amber-600 font-sans font-bold">🔒 Enter your Admin Secret key above and click Authenticate.</td></tr>';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/admin/stats', {
+                    headers: { 'x-admin-secret': secret }
+                });
+
+                if (!res.ok) {
+                    alert('Unauthorized: Invalid Admin Secret key.');
+                    return;
+                }
+
+                const data = await res.json();
+                
+                document.getElementById('kpi-revenue').innerText = `$${data.revenueUSD || '0.00'}`;
+                document.getElementById('kpi-paid').innerText = data.paidPurchases || 0;
+                document.getElementById('kpi-total').innerText = data.totalPurchases || 0;
+
+                document.getElementById('archetype-view').innerText = JSON.stringify(data.archetypes || {}, null, 2);
+
+                const tbody = document.getElementById('purchases-table-body');
+                tbody.innerHTML = '';
+
+                if (data.recentPurchases && data.recentPurchases.length > 0) {
+                    data.recentPurchases.forEach(p => {
+                        const tr = document.createElement('tr');
+                        tr.className = 'border-b border-gray-200 hover:bg-yellow-50';
+                        const isPaid = p.status === 'paid';
+                        tr.innerHTML = `
+                            <td class="p-2 font-bold">${p.id}</td>
+                            <td class="p-2">${p.email}</td>
+                            <td class="p-2"><span class="bg-gray-200 px-1 font-sans">${p.archetype}</span></td>
+                            <td class="p-2"><span class="${isPaid ? 'bg-emerald-300 text-black' : 'bg-amber-200'} px-2 py-0.5 font-bold rounded-none">${p.status.toUpperCase()}</span></td>
+                            <td class="p-2 text-[10px] text-gray-600">${p.stripe_session_id}</td>
+                            <td class="p-2 text-gray-500">${p.created_at}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500 font-sans">No purchases recorded in Postgres database yet.</td></tr>';
+                }
+
+                // Local UX events
+                const localStats = typeof StatsEngine !== 'undefined' ? StatsEngine.getReport() : {};
+                document.getElementById('toggle-view').innerText = JSON.stringify(localStats.toggles || {}, null, 2);
+
+            } catch (err) {
+                console.error('Failed to fetch admin stats:', err);
+                alert('Error connecting to /api/admin/stats');
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', fetchServerStats);
+    </script>
+</body>
+</html>

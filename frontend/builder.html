@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masterpiece Builder | SigHub</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&family=Inter:wght@400;600;800&family=Playfair+Display:ital,wght@0,700;1,400&family=Courier+Prime:wght@700&display=swap" rel="stylesheet">
+    <!-- html2canvas for PNG Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Load Configuration -->
+    <script src="config.js"></script>
+    <script src="stats_engine.js"></script>
+
+    <style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #34d399; /* Mint Green */
+            transition: background-color 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Neo-Brutalist Core Styles */
+        .neo-border {
+            border: 4px solid #000;
+        }
+
+        .neo-shadow {
+            box-shadow: 8px 8px 0px 0px #000;
+        }
+
+        .neo-shadow-sm {
+            box-shadow: 4px 4px 0px 0px #000;
+        }
+
+        /* Dynamic Lift Animations */
+        .neo-hover-lift {
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .neo-hover-lift:hover {
+            transform: translate(-4px, -4px);
+            box-shadow: 12px 12px 0px 0px #000 !important;
+        }
+
+        .neo-hover-lift:active {
+            transform: translate(4px, 4px);
+            box-shadow: 0px 0px 0px 0px #000 !important;
+        }
+
+        .btn-press:active {
+            transform: translate(4px, 4px);
+            box-shadow: 0px 0px 0px 0px #000 !important;
+        }
+
+        /* Tactile Inputs */
+        input, select {
+            background-color: white;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        input:hover, select:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: 2px 2px 0px 0px #000;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            background-color: #fef08a; /* Yellow highlight */
+            transform: translate(-4px, -4px);
+            box-shadow: 6px 6px 0px 0px #000;
+        }
+
+        /* Mix & Match State Classes inside Preview box */
+        .sig-container {
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .sig-container.no-border {
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        .sig-container.flat-theme {
+            box-shadow: none !important;
+        }
+
+        .sig-container.centered {
+            text-align: center;
+        }
+
+        .sig-container.centered #accent-bar {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .sig-container.centered .social-row {
+            justify-content: center;
+        }
+
+        .sig-container.centered .details-rows {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .sig-container.centered .preview-cols {
+            flex-direction: column !important;
+            align-items: center !important;
+            text-align: center !important;
+        }
+
+        .sig-container.centered .avatar-column {
+            margin-right: 0 !important;
+            margin-bottom: 16px !important;
+        }
+
+        .sig-container.dark-mode {
+            background-color: #000;
+            color: #fff !important;
+            border-color: #fff !important;
+        }
+
+        .sig-container.dark-mode p {
+            color: #d1d5db !important;
+        }
+
+        .sig-container.dark-mode .social-icon {
+            border-color: #fff !important;
+            background-color: #fff !important;
+            color: #000 !important;
+        }
+
+        .sig-container.side-pillar {
+            border-left: 12px solid #3b82f6 !important; /* Managed via JS style overrides */
+        }
+
+        .sig-container.side-pillar #accent-bar {
+            display: none !important;
+        }
+
+        .sig-container.airy {
+            padding: 3rem !important;
+        }
+
+        .avatar-box {
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .avatar-box.rounded {
+            border-radius: 9999px !important;
+        }
+
+        /* Custom Toggle Buttons States */
+        .ability-btn {
+            transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .ability-btn:hover {
+            transform: translate(-2px, -2px) rotate(1deg);
+            box-shadow: 6px 6px 0px 0px #000;
+            background-color: #fef08a;
+        }
+
+        .ability-btn.toggle-active {
+            background-color: #000 !important;
+            color: #fff !important;
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px 0px #000 !important;
+        }
+
+        .social-icon {
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .social-icon:hover {
+            transform: scale(1.15) rotate(5deg);
+        }
+
+        /* Color Circle Swatches */
+        .swatch {
+            transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .swatch:hover {
+            transform: scale(1.25) rotate(-5deg);
+        }
+
+        /* Toast notifications */
+        #toast {
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+            transform: translateY(150%) rotate(2deg);
+        }
+        #toast.show {
+            transform: translateY(0) rotate(-1deg);
+        }
+
+        /* Modal Bounce Entry */
+        @keyframes neoBounce {
+            0% { transform: scale(0.8) rotate(-3deg); opacity: 0; }
+            70% { transform: scale(1.05) rotate(1deg); opacity: 1; }
+            100% { transform: scale(1) rotate(-1deg); }
+        }
+        .modal-animate {
+            animation: neoBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* Dashboard Slide-down Entry */
+        @keyframes unlockSwing {
+            0% { transform: translateY(-30px) rotate(3deg); opacity: 0; }
+            100% { transform: translateY(0) rotate(0.5deg); opacity: 1; }
+        }
+        .unlock-animate {
+            animation: unlockSwing 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+    </style>
+</head>
+
+<body class="p-4 md:p-8 min-h-screen flex flex-col justify-between">
+
+    <header class="max-w-7xl w-full mx-auto flex justify-between items-center mb-8">
+        <a href="index.html"
+            class="neo-border bg-white px-4 py-2 neo-shadow-sm font-black text-xl uppercase tracking-tighter hover:rotate-[-2deg] transition-transform block">SIGHUB</a>
+        <div class="flex gap-4 items-center">
+            <a href="showcase.html" class="font-bold underline uppercase text-sm hover:text-white transition-colors">← Gallery</a>
+            <div class="bg-black text-white px-4 py-1 font-bold text-xs uppercase italic">Design Laboratory v2.2</div>
+        </div>
+    </header>
+
+    <!-- Guided Customizer Banner -->
+    <div id="vibe-banner" class="max-w-7xl w-full mx-auto mb-8 hidden">
+        <div class="bg-yellow-300 neo-border p-4 neo-shadow flex items-center justify-between">
+            <h2 class="text-lg font-black uppercase">
+                🚀 Customizing your <span id="vibe-name" class="bg-black text-white px-1">Archetype</span> template.
+            </h2>
+            <a href="builder.html" class="font-bold text-xs underline uppercase">Reset to Blank</a>
+        </div>
+    </div>
+
+    <main class="max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 flex-grow items-start">
+
+        <!-- FORM SECTION (Lg: Left 7 Columns) -->
+        <section class="space-y-6 lg:col-span-7">
+            
+            <!-- 1. THE DETAILS -->
+            <div class="bg-white neo-border p-6 neo-shadow neo-hover-lift">
+                <div class="flex items-center gap-2 mb-4 border-b-4 border-black pb-2">
+                    <span class="bg-yellow-300 text-black px-2 py-0.5 font-bold border-2 border-black text-xs">01</span>
+                    <h2 class="text-xl font-black uppercase tracking-tight">The Contact Details</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold uppercase tracking-wide">Full Name</label>
+                        <input type="text" id="name" placeholder="Alex Rivers" class="w-full neo-border p-3 font-bold text-sm" oninput="updatePreview()">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold uppercase tracking-wide">Job Title</label>
+                        <input type="text" id="title" placeholder="CEO / Founder" class="w-full neo-border p-3 font-bold text-sm" oninput="updatePreview()">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold uppercase tracking-wide">Company</label>
+                        <input type="text" id="company" placeholder="CloudPulse" class="w-full neo-border p-3 font-bold text-sm" oninput="updatePreview()">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold uppercase tracking-wide">Email</label>
+                        <input type="email" id="email" placeholder="alex@cloudpulse.io" class="w-full neo-border p-3 font-bold text-sm" oninput="updatePreview()">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold uppercase tracking-wide">Phone Number (Optional)</label>
+                        <input type="text" id="phone" placeholder="+1 (555) 382-9102" class="w-full neo-border p-3 font-bold text-sm" oninput="updatePreview()">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold uppercase tracking-wide">Website URL (Optional)</label>
+                        <input type="text" id="website" placeholder="cloudpulse.io" class="w-full neo-border p-3 font-bold text-sm" oninput="updatePreview()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. SOCIAL LINKS (Dynamic 3 Max / 0 Min control) -->
+            <div class="bg-white neo-border p-6 neo-shadow neo-hover-lift">
+                <div class="flex items-center justify-between border-b-4 border-black pb-2 mb-4">
+                    <div class="flex items-center gap-2">
+                        <span class="bg-cyan-300 text-black px-2 py-0.5 font-bold border-2 border-black text-xs">02</span>
+                        <h2 class="text-xl font-black uppercase tracking-tight">Social Profile Links</h2>
+                    </div>
+                    <span id="social-counter" class="border-2 border-black px-2 py-0.5 text-xs font-black bg-white rounded-none">0 / 3</span>
+                </div>
+                <p class="text-[11px] font-bold text-gray-500 italic mb-4 leading-normal">
+                    * Paste the URL or handle. SigHub layout-engine caps at exactly **3 icons** to secure professional alignment. Handles are extracted automatically.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold uppercase tracking-wide flex items-center">LinkedIn Profile</label>
+                        <input type="text" id="linkedin" placeholder="alexrivers" class="w-full neo-border p-3 font-bold text-sm" oninput="updatePreview()" onblur="sanitizeSocialInput(this, 'linkedin')">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold uppercase tracking-wide flex items-center">Twitter / X Handle</label>
+                        <input type="text" id="twitter" placeholder="alex_pulse" class="w-full neo-border p-3 font-bold text-sm" oninput="updatePreview()" onblur="sanitizeSocialInput(this, 'twitter')">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold uppercase tracking-wide flex items-center">Instagram Profile</label>
+                        <input type="text" id="instagram" placeholder="alex_rivers" class="w-full neo-border p-3 font-bold text-sm" oninput="updatePreview()" onblur="sanitizeSocialInput(this, 'instagram')">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold uppercase tracking-wide flex items-center">GitHub Username</label>
+                        <input type="text" id="github" placeholder="alexrivers-dev" class="w-full neo-border p-3 font-bold text-sm" oninput="updatePreview()" onblur="sanitizeSocialInput(this, 'github')">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. AVATAR & BASE COLORS -->
+            <div class="bg-white neo-border p-6 neo-shadow neo-hover-lift">
+                <div class="flex items-center gap-2 mb-4 border-b-4 border-black pb-2">
+                    <span class="bg-pink-300 text-black px-2 py-0.5 font-bold border-2 border-black text-xs">03</span>
+                    <h2 class="text-xl font-black uppercase tracking-tight">Avatar & Core Styling</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Avatar selectors -->
+                    <div class="space-y-3">
+                        <label class="text-xs font-bold uppercase tracking-wide block">Avatar Type</label>
+                        <div class="flex gap-4">
+                            <label class="flex items-center gap-2 font-bold cursor-pointer">
+                                <input type="radio" name="avatar-type" id="avatar-type-emoji" value="emoji" checked onchange="selectAvatarType('emoji')" class="w-4 h-4 accent-black">
+                                Use Emoji
+                            </label>
+                            <label class="flex items-center gap-2 font-bold cursor-pointer">
+                                <input type="radio" name="avatar-type" id="avatar-type-file" value="file" onchange="selectAvatarType('file')" class="w-4 h-4 accent-black">
+                                Upload Photo
+                            </label>
+                        </div>
+                        
+                        <!-- Emoji picker box -->
+                        <div id="emoji-group" class="space-y-1">
+                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wide block">Select or Type Emoji</label>
+                            <input type="text" id="avatar-emoji" value="⚡" maxlength="4" class="w-20 text-center neo-border p-2 font-bold text-xl" oninput="updatePreview()">
+                            <div class="flex gap-1 mt-1 flex-wrap">
+                                <button onclick="setEmoji('👤')" class="border border-black bg-gray-100 px-2 py-1 text-xs font-bold hover:bg-yellow-100">👤</button>
+                                <button onclick="setEmoji('⚡')" class="border border-black bg-gray-100 px-2 py-1 text-xs font-bold hover:bg-yellow-100">⚡</button>
+                                <button onclick="setEmoji('🎨')" class="border border-black bg-gray-100 px-2 py-1 text-xs font-bold hover:bg-yellow-100">🎨</button>
+                                <button onclick="setEmoji('💼')" class="border border-black bg-gray-100 px-2 py-1 text-xs font-bold hover:bg-yellow-100">💼</button>
+                                <button onclick="setEmoji('☕')" class="border border-black bg-gray-100 px-2 py-1 text-xs font-bold hover:bg-yellow-100">☕</button>
+                                <button onclick="setEmoji('🔥')" class="border border-black bg-gray-100 px-2 py-1 text-xs font-bold hover:bg-yellow-100">🔥</button>
+                                <button onclick="setEmoji('📐')" class="border border-black bg-gray-100 px-2 py-1 text-xs font-bold hover:bg-yellow-100">📐</button>
+                                <button onclick="setEmoji('🖋️')" class="border border-black bg-gray-100 px-2 py-1 text-xs font-bold hover:bg-yellow-100">🖋️</button>
+                            </div>
+                        </div>
+
+                        <!-- Image File upload box -->
+                        <div id="file-group" class="hidden space-y-1">
+                            <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wide block">Upload Image File</label>
+                            <input type="file" id="avatar-file" accept="image/*" onchange="handleImageUpload(this)" class="w-full neo-border p-1 bg-white font-bold text-xs">
+                            <p class="text-[9px] font-bold text-gray-400 italic">Encodes natively to embedded Base64 (eliminates broken images!)</p>
+                        </div>
+                    </div>
+
+                    <!-- Colors & Font family -->
+                    <div class="space-y-4">
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold uppercase tracking-wide block">Avatar Background Color</label>
+                            <div class="flex gap-2 items-center">
+                                <input type="color" id="avatar-bg-color" value="#f472b6" class="w-12 h-12 neo-border cursor-pointer p-0" oninput="updatePreview()">
+                                <input type="text" id="avatar-bg-color-hex" value="#f472b6" class="neo-border p-2 font-bold text-sm w-28 uppercase" oninput="syncAvatarBgInput(this)">
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold uppercase tracking-wide block">Accent Theme Color</label>
+                            <div class="flex gap-2 items-center">
+                                <input type="color" id="accent-color" value="#fbbf24" class="w-12 h-12 neo-border cursor-pointer p-0" oninput="updatePreview()">
+                                <input type="text" id="accent-color-hex" value="#fbbf24" class="neo-border p-2 font-bold text-sm w-28 uppercase" oninput="syncColorInput(this)">
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold uppercase tracking-wide block">Text Color</label>
+                            <input type="color" id="text-color" value="#000000" class="w-12 h-12 neo-border cursor-pointer p-0" oninput="updatePreview()">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold uppercase tracking-wide block">Social Icon Color</label>
+                            <input type="color" id="social-color" value="#000000" class="w-12 h-12 neo-border cursor-pointer p-0" oninput="updatePreview()">
+                        </div>
+
+                        <!-- Card Translucent Background selector -->
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold uppercase tracking-wide block">Card Background (Opacity Opulence)</label>
+                            <div class="flex flex-wrap gap-1.5 mt-1">
+                                <button type="button" onclick="setCardBg('transparent')" class="border-2 border-black bg-gray-100 px-2 py-1 text-[10px] font-black uppercase hover:bg-yellow-100 toggle-active">Off</button>
+                                <button type="button" onclick="setCardBg('rgba(255, 255, 255, 0.85)')" class="border-2 border-black bg-white px-2 py-1 text-[10px] font-black uppercase hover:bg-yellow-100">White</button>
+                                <button type="button" onclick="setCardBg('rgba(245, 230, 211, 0.85)')" class="border-2 border-black bg-[#f5e6d3] px-2 py-1 text-[10px] font-black uppercase hover:bg-yellow-100">Tan</button>
+                                <button type="button" onclick="setCardBg('rgba(254, 226, 226, 0.85)')" class="border-2 border-black bg-[#fee2e2] px-2 py-1 text-[10px] font-black uppercase hover:bg-yellow-100">Light Red</button>
+                                <button type="button" onclick="setCardBg('rgba(243, 232, 255, 0.85)')" class="border-2 border-black bg-[#f3e8ff] px-2 py-1 text-[10px] font-black uppercase hover:bg-yellow-100">Light Purple</button>
+                                <button type="button" onclick="setCardBg('rgba(224, 242, 254, 0.85)')" class="border-2 border-black bg-[#e0f2fe] px-2 py-1 text-[10px] font-black uppercase hover:bg-yellow-100">Light Blue</button>
+                            </div>
+                            <input type="hidden" id="card-bg-val" value="transparent">
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold uppercase tracking-wide block">Typography Font Family</label>
+                            <select id="font-family" onchange="updatePreview()" class="w-full neo-border p-3 font-bold text-sm">
+                                <option value="Space Grotesk, Arial, sans-serif" style="font-family: 'Space Grotesk', sans-serif;">Space Grotesk (Default Cyber)</option>
+                                <option value="Inter, Arial, sans-serif" style="font-family: 'Inter', sans-serif;">Inter (Premium Clean)</option>
+                                <option value="Georgia, serif" style="font-family: 'Georgia', serif;">Georgia (Author / Editorial)</option>
+                                <option value="Courier New, monospace" style="font-family: 'Courier New', monospace;">Courier Prime (Dev Monospace)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. MIX & MATCH (10 Balanced Style Switches) -->
+            <div class="bg-white neo-border p-6 neo-shadow neo-hover-lift">
+                <div class="flex items-center gap-2 mb-4 border-b-4 border-black pb-2">
+                    <span class="bg-[#86efac] text-black px-2 py-0.5 font-bold border-2 border-black text-xs">04</span>
+                    <h2 class="text-xl font-black uppercase tracking-tight">Mix & Match Design Toggles</h2>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-2">
+                    <button type="button" onclick="toggleAbility(this, 'no-border')" data-ability="no-border"
+                        class="ability-btn neo-border p-2.5 font-black text-[10px] uppercase bg-gray-100 btn-press">No Border</button>
+                    <button type="button" onclick="toggleAbility(this, 'centered')" data-ability="centered"
+                        class="ability-btn neo-border p-2.5 font-black text-[10px] uppercase bg-gray-100 btn-press">Center Align</button>
+                    <button type="button" onclick="toggleAbility(this, 'dark-mode')" data-ability="dark-mode"
+                        class="ability-btn neo-border p-2.5 font-black text-[10px] uppercase bg-gray-100 btn-press">Dark Mode</button>
+                    <button type="button" onclick="toggleAbility(this, 'side-pillar')" data-ability="side-pillar"
+                        class="ability-btn neo-border p-2.5 font-black text-[10px] uppercase bg-gray-100 btn-press">Side Pillar</button>
+                    <button type="button" onclick="toggleAbility(this, 'airy')" data-ability="airy"
+                        class="ability-btn neo-border p-2.5 font-black text-[10px] uppercase bg-gray-100 btn-press">Airy Padding</button>
+                    <button type="button" onclick="toggleAbility(this, 'avatar-round')" data-ability="avatar-round"
+                        class="ability-btn neo-border p-2.5 font-black text-[10px] uppercase bg-gray-100 btn-press">Circle Photo</button>
+                    <button type="button" onclick="toggleAbility(this, 'hide-accent')" data-ability="hide-accent"
+                        class="ability-btn neo-border p-2.5 font-black text-[10px] uppercase bg-gray-100 btn-press">Hide Accent</button>
+                    <button type="button" onclick="toggleAbility(this, 'compact-social')" data-ability="compact-social"
+                        class="ability-btn neo-border p-2.5 font-black text-[10px] uppercase bg-gray-100 btn-press">Small Icons</button>
+                    <button type="button" onclick="toggleAbility(this, 'hide-photo')" data-ability="hide-photo"
+                        class="ability-btn neo-border p-2.5 font-black text-[10px] uppercase bg-gray-100 btn-press">Hide Photo</button>
+                    <button type="button" onclick="toggleAbility(this, 'flat-theme')" data-ability="flat-theme"
+                        class="ability-btn neo-border p-2.5 font-black text-[10px] uppercase bg-gray-100 btn-press">Flat Theme</button>
+                </div>
+            </div>
+
+            <!-- ACTION AREA -->
+            <div id="action-area" class="pb-12">
+                <button type="button" id="btn-generate" onclick="clickGenerateButton()"
+                    class="w-full bg-yellow-300 hover:bg-yellow-400 text-black neo-border p-6 text-3xl font-black uppercase tracking-tight neo-shadow btn-press transition-all duration-150 transform hover:-translate-y-1 hover:shadow-[12px_12px_0px_0px_#000]">
+                    Generate My Masterpiece (<span id="price-label">$1.99</span>) ->
+                </button>
+
+                <!-- DOWNLOADS CONTAINER -->
+                <div id="export-panel" class="hidden bg-white neo-border p-6 neo-shadow space-y-6 rotate-[0.5deg]">
+                    <div class="bg-emerald-400 p-4 neo-border text-center">
+                        <h3 class="text-2xl font-black uppercase tracking-tight">🎉 SIGNATURE UNLOCKED</h3>
+                        <p class="text-xs font-bold italic">Lifetime exports and copy paste streams are now active.</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <button id="btn-copy-rich" onclick="copyRichText()" class="bg-yellow-300 hover:bg-yellow-400 neo-border p-4 font-black uppercase text-sm flex flex-col items-center justify-center gap-1 btn-press h-20 shadow-sm transition-colors duration-150">
+                            <span class="text-xl">📋</span>
+                            <span>Copy Rich Text (Gmail/Outlook)</span>
+                        </button>
+                        
+                        <button id="btn-dl-html" onclick="downloadHTMLFile()" class="bg-cyan-300 hover:bg-cyan-400 neo-border p-4 font-black uppercase text-sm flex flex-col items-center justify-center gap-1 btn-press h-20 shadow-sm transition-colors duration-150">
+                            <span class="text-xl">💾</span>
+                            <span>Download Portable HTML</span>
+                        </button>
+
+                        <button id="btn-copy-raw" onclick="copyRawHTML()" class="bg-pink-300 hover:bg-pink-400 neo-border p-4 font-black uppercase text-sm flex flex-col items-center justify-center gap-1 btn-press h-20 shadow-sm transition-colors duration-150">
+                            <span class="text-xl">💻</span>
+                            <span>Copy Raw HTML Code</span>
+                        </button>
+                        
+                        <button id="btn-dl-png" onclick="downloadPNG()" class="bg-orange-300 hover:bg-orange-400 neo-border p-4 font-black uppercase text-sm flex flex-col items-center justify-center gap-1 btn-press h-20 shadow-sm transition-colors duration-150">
+                            <span class="text-xl">🖼️</span>
+                            <span>Download PNG Image Asset</span>
+                        </button>
+                    </div>
+                    
+                    <div class="text-[10px] font-bold text-gray-500 italic bg-gray-50 p-2 border border-black text-center">
+                        💡 Edits made above cascade automatically. Simply copy or download again to capture updates!
+                    </div>
+
+                    <!-- Email optional capture -->
+                    <div class="mt-4 p-4 border-2 border-dashed border-black bg-gray-50">
+                        <label class="flex items-center font-bold text-sm cursor-pointer mb-2">
+                            <input type="checkbox" id="email-opt-in" class="w-5 h-5 mr-2">
+                            Send signature to my email (optional)
+                        </label>
+                        <input type="email" id="user-email-capture" placeholder="your@email.com" class="w-full neo-border p-3 font-bold text-sm">
+                        <button onclick="handleOptionalEmail()" class="mt-2 w-full bg-black text-white p-3 font-black uppercase text-sm btn-press">Send Signature Now</button>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- PREVIEW SECTION (Lg: Right 5 Columns) -->
+        <section class="lg:sticky lg:top-8 lg:col-span-5 space-y-6">
+            <div class="bg-black text-white px-4 py-2 font-black text-xs uppercase italic tracking-widest neo-border inline-block rotate-[-2deg]">
+                Live Production Canvas Preview
+            </div>
+
+            <div class="bg-white neo-border p-6 neo-shadow transition-all duration-300 sig-container overflow-hidden"
+                id="main-sig" style="width:100%; max-width: 520px; font-family: 'Space Grotesk', sans-serif;">
+                <div class="flex flex-col sm:flex-row gap-6 items-start preview-cols">
+                    
+                    <!-- Photo Column -->
+                    <div id="avatar-col" class="avatar-column flex-shrink-0">
+                        <div id="avatar"
+                            class="avatar-box w-20 h-20 bg-pink-400 neo-border neo-shadow-sm flex-shrink-0 flex items-center justify-center text-4xl font-sans" style="width: 80px; height: 80px;">
+                            👤
+                        </div>
+                    </div>
+
+                    <!-- Texts Column -->
+                    <div class="flex-grow flex flex-col details-rows text-left w-full">
+                        <!-- Accent Bar -->
+                        <div id="accent-bar" class="w-12 h-2.5 bg-yellow-300 mb-3.5 neo-border" style="width: 48px; height: 10px;"></div>
+                        
+                        <!-- Name & Metadata -->
+                        <h2 id="prev-name" class="text-2xl font-black uppercase leading-none tracking-tight break-words">Your Name</h2>
+                        <p id="prev-meta" class="text-sm font-bold text-gray-500 mt-1 mb-3.5 italic break-words">Title @ Company</p>
+
+                        <!-- Contacts list -->
+                        <div class="space-y-1 font-bold text-xs text-left w-full" id="prev-contacts">
+                            <p id="prev-email-row" class="flex items-center gap-2">
+                                <span class="bg-black text-white px-1 font-mono text-[9px] w-4 text-center">E</span>
+                                <span id="prev-email" class="break-all">hello@example.com</span>
+                            </p>
+                            <p id="prev-phone" class="hidden flex items-center gap-2">
+                                <span class="bg-black text-white px-1 font-mono text-[9px] w-4 text-center">M</span>
+                                <span id="prev-phone-val" class="break-all">+1 (555) 382-9102</span>
+                            </p>
+                            <p id="prev-website" class="hidden flex items-center gap-2">
+                                <span class="bg-black text-white px-1 font-mono text-[9px] w-4 text-center">W</span>
+                                <span id="prev-website-val" class="break-all">example.com</span>
+                            </p>
+                        </div>
+
+                        <!-- Social Icon Badges -->
+                        <div class="social-row mt-6 flex gap-1.5 flex-wrap">
+                            <div id="prev-li" class="social-icon w-8 h-8 neo-border bg-black text-white flex items-center justify-center text-[10px] font-black uppercase" style="width: 26px; height: 26px;">IN</div>
+                            <div id="prev-tw" class="social-icon w-8 h-8 neo-border bg-black text-white flex items-center justify-center text-[10px] font-black uppercase" style="width: 26px; height: 26px;">X</div>
+                            <div id="prev-ig" class="social-icon w-8 h-8 neo-border bg-black text-white flex items-center justify-center text-[10px] font-black uppercase" style="width: 26px; height: 26px;">IG</div>
+                            <div id="prev-gh" class="social-icon w-8 h-8 neo-border bg-black text-white flex items-center justify-center text-[10px] font-black uppercase" style="width: 26px; height: 26px;">GH</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HELP/TIPS BOX -->
+            <div class="bg-white neo-border p-4 font-bold text-xs space-y-1 rotate-[0.5deg]">
+                <p class="text-black uppercase underline">🚀 How to load in Gmail:</p>
+                <p class="text-gray-600 italic">1. Click "Copy Rich Text" above.</p>
+                <p class="text-gray-600 italic">2. Open Gmail Settings → Signature.</p>
+                <p class="text-gray-600 italic">3. Paste (Ctrl+V or Cmd+V) directly into the text area. Save changes!</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="max-w-7xl w-full mx-auto neo-border bg-black text-white p-6 mt-12 flex flex-col md:flex-row justify-between items-center gap-6">
+        <p class="font-bold text-xs">© 2026 SIGHUB — STYLISH INTERN-BUILT EXPERT UTILITY.</p>
+        <div class="flex gap-6 uppercase font-black tracking-widest text-xs">
+            <a href="index.html" class="hover:text-yellow-300 transition-colors">Home</a>
+            <a href="showcase.html" class="hover:text-cyan-400 transition-colors">Gallery</a>
+            <a href="support.html" class="hover:text-rose-400 transition-colors">Support Desk</a>
+        </div>
+    </footer>
+
+
+    <!-- TOAST ELEMENT -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-yellow-300 text-black border-4 border-black p-4 neo-shadow font-bold text-sm max-w-sm z-50 rounded-none pointer-events-none opacity-0">
+        Notification content goes here.
+    </div>
+
+
+    <!-- STRIPE-STYLE CHECKOUT MODAL -->
+    <div id="checkout-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+        <div class="bg-white neo-border p-6 md:p-8 max-w-md w-full neo-shadow relative rotate-[-1deg]" id="modal-card">
+            <!-- Close button -->
+            <button onclick="closeCheckout()" class="absolute -top-4 -right-4 bg-red-400 neo-border w-10 h-10 flex items-center justify-center font-black text-lg btn-press">✕</button>
+            
+            <!-- Header -->
+            <div class="bg-yellow-300 p-3 neo-border text-center mb-6">
+                <h3 class="text-xl font-black uppercase tracking-tight">🔒 SECURE CHECKOUT</h3>
+            </div>
+            
+            <!-- Item & Price -->
+            <div class="flex justify-between items-center border-b-4 border-black pb-4 mb-6">
+                <div>
+                    <h4 class="font-black uppercase text-md">SigHub Signature Asset</h4>
+                    <p class="text-[10px] font-bold text-gray-500 italic">One-time fee • Unlocks all export streams</p>
+                </div>
+                <div class="text-3xl font-black text-emerald-500" style="-webkit-text-stroke: 1.5px black;" id="modal-price">$1.99</div>
+            </div>
+            
+            <!-- Stripe Checkout Form -->
+            <form id="payment-form" onsubmit="initiateStripeCheckout(event)" class="space-y-4">
+                <div class="space-y-1">
+                    <label class="text-[10px] font-black uppercase block">Receipt & Delivery Email</label>
+                    <input type="email" id="checkout-email" required placeholder="alex@cloudpulse.io" class="w-full neo-border p-3 font-bold text-sm">
+                </div>
+                
+                <div class="pt-4">
+                    <button type="submit" id="pay-button" class="w-full bg-emerald-400 neo-border p-4 text-xl font-black uppercase tracking-tight neo-shadow btn-press hover:bg-emerald-500 flex items-center justify-center gap-2">
+                        <span>Pay $1.99 with Stripe</span>
+                        <span>➔</span>
+                    </button>
+                </div>
+                <p class="text-center text-[10px] font-bold text-gray-500 mt-2 italic">
+                    🔒 Redirects securely to Stripe Checkout. No card data stored on this site.
+                </p>
+            </form>
+
+            <!-- Loading View -->
+            <div id="payment-loading" class="hidden absolute inset-0 bg-white neo-border p-8 flex flex-col items-center justify-center space-y-6">
+                <div class="w-16 h-16 border-4 border-black border-t-yellow-300 rounded-full animate-spin"></div>
+                <h4 class="text-2xl font-black uppercase tracking-tight text-center" id="loading-message">CONNECTING TO BANK...</h4>
+                <p class="text-sm font-bold text-gray-500 italic text-center">Stripe secure sandbox transaction processing...</p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- FULL INTERACTIVE ARCHETYPES ENGINE -->
+    <script>
+        // 8 Archetypes fully mapped from showcase.html
+        const ARCHETYPES = {
+            'tech-founder': {
+                name: "Alex Rivers",
+                title: "Founder & CEO",
+                company: "CloudPulse",
+                email: "alex@cloudpulse.io",
+                phone: "+1 (555) 382-9102",
+                website: "cloudpulse.io",
+                linkedin: "alexrivers",
+                twitter: "alex_cloudpulse",
+                instagram: "",
+                github: "alexrivers-dev",
+                accentColor: "#fbbf24", // Yellow
+                fontFamily: "Space Grotesk, Arial, sans-serif",
+                avatarType: "emoji",
+                avatarValue: "⚡",
+                // styling flags
+                noBorder: false,
+                centered: false,
+                darkMode: false,
+                sidePillar: false,
+                airy: false,
+                avatarRound: false,
+                hideAccent: false,
+                compactSocial: false,
+                hidePhoto: false,
+                flatTheme: false
+            },
+            'creative-maverick': {
+                name: "ZIGGY JONES",
+                title: "Visual Anarchist / Director",
+                company: "Ziggy Studio",
+                email: "ziggy@portfolio.ziggy.wtf",
+                phone: "+1 (555) 999-6666",
+                website: "portfolio.ziggy.wtf",
+                linkedin: "ziggyjones",
+                twitter: "ziggy_anarchy",
+                instagram: "ziggy_maverick",
+                github: "",
+                accentColor: "#f43f5e", // Rose
+                fontFamily: "Courier New, monospace",
+                avatarType: "emoji",
+                avatarValue: "🎨",
+                noBorder: false,
+                centered: false,
+                darkMode: true,
+                sidePillar: false,
+                airy: false,
+                avatarRound: true,
+                hideAccent: true,
+                compactSocial: true,
+                hidePhoto: false,
+                flatTheme: false
+            },
+            'corporate-closer': {
+                name: "Marcus Vance",
+                title: "Senior Managing Director",
+                company: "Apex Capital Partners",
+                email: "m.vance@apexcap.com",
+                phone: "(212) 555-0199",
+                website: "apexcap.com",
+                linkedin: "marcusvance",
+                twitter: "",
+                instagram: "",
+                github: "",
+                accentColor: "#1e3a8a", // Navy Blue
+                fontFamily: "Georgia, serif",
+                avatarType: "emoji",
+                avatarValue: "💼",
+                noBorder: false,
+                centered: false,
+                darkMode: false,
+                sidePillar: true,
+                airy: false,
+                avatarRound: false,
+                hideAccent: true,
+                compactSocial: false,
+                hidePhoto: false,
+                flatTheme: false
+            },
+            'minimalist-hustler': {
+                name: "k. chen",
+                title: "indie maker",
+                company: "",
+                email: "k@kchen.me",
+                phone: "",
+                website: "kchen.me",
+                linkedin: "kchen",
+                twitter: "kchen_hustles",
+                instagram: "",
+                github: "kchen-indie",
+                accentColor: "#6b7280", // Gray
+                fontFamily: "Inter, Arial, sans-serif",
+                avatarType: "emoji",
+                avatarValue: "☕",
+                noBorder: true,
+                centered: true,
+                darkMode: false,
+                sidePillar: false,
+                airy: true,
+                avatarRound: true,
+                hideAccent: true,
+                compactSocial: true,
+                hidePhoto: false,
+                flatTheme: false
+            },
+            'sales-beast': {
+                name: "Brad \"Boiler\" Jenkins",
+                title: "VP of Global Acquisition",
+                company: "SaaS-Monster",
+                email: "brad@saasmonster.com",
+                phone: "1-800-CLOSER-NOW",
+                website: "saasmonster.com",
+                linkedin: "bradboiler",
+                twitter: "boiler_brad",
+                instagram: "",
+                github: "",
+                accentColor: "#ea580c", // Orange
+                fontFamily: "Space Grotesk, Arial, sans-serif",
+                avatarType: "emoji",
+                avatarValue: "🔥",
+                noBorder: false,
+                centered: false,
+                darkMode: false,
+                sidePillar: false,
+                airy: false,
+                avatarRound: false,
+                hideAccent: false,
+                compactSocial: false,
+                hidePhoto: false,
+                flatTheme: false
+            },
+            'agency-owner': {
+                name: "Sarah Sterling",
+                title: "Managing Partner",
+                company: "Onyx Scale Agency",
+                email: "sarah@onyxscale.com",
+                phone: "+1 (555) 789-1122",
+                website: "onyxscale.com",
+                linkedin: "sarahsterling",
+                twitter: "",
+                instagram: "sarah_onyx",
+                github: "",
+                accentColor: "#a855f7", // Purple
+                fontFamily: "Space Grotesk, Arial, sans-serif",
+                avatarType: "emoji",
+                avatarValue: "🏆",
+                noBorder: false,
+                centered: false,
+                darkMode: false,
+                sidePillar: false,
+                airy: true,
+                avatarRound: true,
+                hideAccent: false,
+                compactSocial: false,
+                hidePhoto: false,
+                flatTheme: false
+            },
+            'product-designer': {
+                name: "Elena Rostova",
+                title: "Systems & Interaction Design",
+                company: "Elena Design",
+                email: "elena@design.io",
+                phone: "",
+                website: "elena.design/work",
+                linkedin: "elenarostova",
+                twitter: "elena_ux",
+                instagram: "elena_pixels",
+                github: "elenadesigns",
+                accentColor: "#06b6d4", // Cyan
+                fontFamily: "Courier New, monospace",
+                avatarType: "emoji",
+                avatarValue: "📐",
+                noBorder: false,
+                centered: false,
+                darkMode: false,
+                sidePillar: false,
+                airy: false,
+                avatarRound: true,
+                hideAccent: false,
+                compactSocial: true,
+                hidePhoto: false,
+                flatTheme: false
+            },
+            'ghostwriter': {
+                name: "The Anonymous Wordsmith",
+                title: "Ghostwriter for Founders",
+                company: "Wordsmith Agency",
+                email: "encrypted-inbox@wordsmith.io",
+                phone: "",
+                website: "wordsmith.io",
+                linkedin: "wordsmith",
+                twitter: "anon_wordsmith",
+                instagram: "",
+                github: "",
+                accentColor: "#10b981", // Emerald Green
+                fontFamily: "Georgia, serif",
+                avatarType: "emoji",
+                avatarValue: "🖋️",
+                noBorder: false,
+                centered: false,
+                darkMode: true,
+                sidePillar: false,
+                airy: true,
+                avatarRound: false,
+                hideAccent: true,
+                compactSocial: false,
+                hidePhoto: false,
+                flatTheme: false
+            }
+        };
+
+        let uploadedAvatarBase64 = "";
+        let isPaid = false;
+
+        let currentArchetypeKey = 'tech-founder';
+
+        window.addEventListener('DOMContentLoaded', () => {
+            // Apply custom configurations
+            if (typeof SIGHUB_CONFIG !== 'undefined') {
+                const priceLabel = document.getElementById('price-label');
+                if (priceLabel) priceLabel.innerText = SIGHUB_CONFIG.priceAmount || '$1.99';
+                const modalPrice = document.getElementById('modal-price');
+                if (modalPrice) modalPrice.innerText = SIGHUB_CONFIG.priceAmount || '$1.99';
+            }
+
+            // Read query params & verified session storage for session verification or archetype injection
+            const urlParams = new URLSearchParams(window.location.search);
+            const sessionId = urlParams.get('session_id') || localStorage.getItem('sighub_verified_session_id');
+            if (sessionId) {
+                checkServerPaymentStatus(sessionId);
+            }
+
+            // Read query params for visual archetype injection
+            const vibe = urlParams.get('vibe');
+            
+            if (vibe && ARCHETYPES[vibe]) {
+                // Show guided banner
+                const banner = document.getElementById('vibe-banner');
+                const nameSpan = document.getElementById('vibe-name');
+                if (banner && nameSpan) {
+                    nameSpan.innerText = vibe.replace('-', ' ');
+                    banner.classList.remove('hidden');
+                }
+                
+                applyArchetype(vibe);
+                showToast(`🚀 Archetype "${vibe.replace('-', ' ').toUpperCase()}" injected into laboratory!`);
+            } else {
+                applyArchetype('tech-founder');
+            }
+        });
+
+        // Smart Social Media Handle Extraction
+        function sanitizeSocialInput(inputEl, platform) {
+            let val = inputEl.value.trim();
+            if (!val) return;
+
+            let handle = val;
+            try {
+                if (val.startsWith('http://') || val.startsWith('https://') || val.includes('.com/')) {
+                    const url = new URL(val.startsWith('http') ? val : 'https://' + val);
+                    const pathParts = url.pathname.split('/').filter(p => p);
+                    
+                    if (platform === 'linkedin' && url.hostname.includes('linkedin.com')) {
+                        const inIndex = pathParts.indexOf('in');
+                        if (inIndex !== -1 && pathParts[inIndex + 1]) {
+                            handle = pathParts[inIndex + 1];
+                        } else if (pathParts[0]) {
+                            handle = pathParts[0];
+                        }
+                    } else if (pathParts[0]) {
+                        handle = pathParts[0];
+                    }
+                    
+                    inputEl.value = handle;
+                    showToast(`✨ Smart-extracted social handle: "${handle}"`);
+                    updatePreview();
+                }
+            } catch (e) {
+                // Keep original value if parsing fails
+            }
+        }
+
+        // Active Social Media dynamic limiter (0 minimum, max 3)
+        function getActiveSocials() {
+            const list = [
+                { id: 'linkedin', label: 'IN', val: document.getElementById('linkedin').value, prefix: 'linkedin.com/in' },
+                { id: 'twitter', label: 'X', val: document.getElementById('twitter').value, prefix: 'twitter.com' },
+                { id: 'instagram', label: 'IG', val: document.getElementById('instagram').value, prefix: 'instagram.com' },
+                { id: 'github', label: 'GH', val: document.getElementById('github').value, prefix: 'github.com' }
+            ];
+            
+            const active = list.filter(item => item.val.trim() !== '');
+            
+            // Render active tags / warning badges in the input forms
+            list.forEach(item => {
+                const badgeId = `${item.id}-badge`;
+                let badgeEl = document.getElementById(badgeId);
+                if (!badgeEl) {
+                    const labelEl = document.getElementById(item.id).previousElementSibling;
+                    if (labelEl) {
+                        badgeEl = document.createElement('span');
+                        badgeEl.id = badgeId;
+                        badgeEl.className = 'text-[9px] font-bold uppercase ml-2 px-1 border border-black hidden';
+                        labelEl.appendChild(badgeEl);
+                    }
+                }
+                
+                if (badgeEl) {
+                    badgeEl.className = 'text-[9px] font-bold uppercase ml-2 px-1 border border-black hidden';
+                    if (item.val.trim() !== '') {
+                        const index = active.findIndex(a => a.id === item.id);
+                        if (index < 3) {
+                            badgeEl.innerText = 'Active';
+                            badgeEl.classList.remove('hidden');
+                            badgeEl.classList.add('bg-emerald-300', 'text-black');
+                        } else {
+                            badgeEl.innerText = '⚠️ Layout limit (max 3)';
+                            badgeEl.classList.remove('hidden');
+                            badgeEl.classList.add('bg-red-300', 'text-black');
+                        }
+                    }
+                }
+            });
+
+            // Restrict array payload to max 3 items
+            const limitedActive = active.slice(0, 3);
+            
+            // Dynamic counter update
+            const counterEl = document.getElementById('social-counter');
+            if (counterEl) {
+                counterEl.innerText = `${limitedActive.length} / 3`;
+                if (active.length > 3) {
+                    counterEl.classList.add('bg-yellow-300');
+                } else {
+                    counterEl.classList.remove('bg-yellow-300');
+                }
+            }
+
+            return limitedActive;
+        }
+
+        // Toggle avatar/photo selections
+        function selectAvatarType(type) {
+            const emojiGroup = document.getElementById('emoji-group');
+            const fileGroup = document.getElementById('file-group');
+            if (type === 'emoji') {
+                emojiGroup.classList.remove('hidden');
+                fileGroup.classList.add('hidden');
+            } else {
+                emojiGroup.classList.add('hidden');
+                fileGroup.classList.remove('hidden');
+            }
+            updatePreview();
+        }
+
+        function setEmoji(emoji) {
+            document.getElementById('avatar-emoji').value = emoji;
+            updatePreview();
+        }
+
+        // Sync Hex text to color picker
+        function syncColorInput(textInput) {
+            let hex = textInput.value;
+            if (!hex.startsWith('#')) hex = '#' + hex;
+            if (hex.length === 7) {
+                document.getElementById('accent-color').value = hex;
+                updatePreview();
+            }
+        }
+
+        // Sync Avatar BG Hex text to color picker
+        function syncAvatarBgInput(textInput) {
+            let hex = textInput.value;
+            if (!hex.startsWith('#')) hex = '#' + hex;
+            if (hex.length === 7) {
+                document.getElementById('avatar-bg-color').value = hex;
+                updatePreview();
+            }
+        }
+
+        function quickColor(color) {
+            document.getElementById('accent-color').value = color;
+            document.getElementById('accent-color-hex').value = color;
+            updatePreview();
+            showToast(`🎨 Palette theme set to: ${color.toUpperCase()}`);
+        }
+
+        // Encode uploaded image to Base64
+        function handleImageUpload(input) {
+            const file = input.files[0];
+            if (file) {
+                if (file.size > 2 * 1024 * 1024) {
+                    showToast('⚠️ Image too large! Max file size limit is 2MB.');
+                    input.value = '';
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    uploadedAvatarBase64 = e.target.result;
+                    updatePreview();
+                    showToast('📸 Profile avatar picture uploaded and encoded!');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Reset designer settings
+        function clearAllToggles() {
+            const classes = ['no-border', 'centered', 'dark-mode', 'side-pillar', 'airy', 'flat-theme'];
+            const sig = document.getElementById('main-sig');
+            classes.forEach(cls => sig.classList.remove(cls));
+
+            document.getElementById('avatar').classList.remove('rounded');
+            document.getElementById('accent-bar').classList.remove('hidden');
+            document.getElementById('avatar-col').classList.remove('hidden');
+
+            document.querySelectorAll('.ability-btn').forEach(btn => btn.classList.remove('toggle-active'));
+
+            document.querySelectorAll('.social-icon').forEach(s => {
+                s.classList.remove('w-6', 'h-6');
+                s.classList.add('w-8', 'h-8');
+            });
+        }
+
+        // Inject archetype configurations
+        function applyArchetype(key) {
+            currentArchetypeKey = key;
+            StatsEngine.trackEvent('archetype_selected', key);
+            clearAllToggles();
+            const archetype = ARCHETYPES[key];
+            if (!archetype) return;
+
+            document.getElementById('name').value = archetype.name || '';
+            document.getElementById('title').value = archetype.title || '';
+            document.getElementById('company').value = archetype.company || '';
+            document.getElementById('email').value = archetype.email || '';
+            document.getElementById('phone').value = archetype.phone || '';
+            document.getElementById('website').value = archetype.website || '';
+            
+            document.getElementById('linkedin').value = archetype.linkedin || '';
+            document.getElementById('twitter').value = archetype.twitter || '';
+            document.getElementById('instagram').value = archetype.instagram || '';
+            document.getElementById('github').value = archetype.github || '';
+
+            document.getElementById('accent-color').value = archetype.accentColor;
+            document.getElementById('accent-color-hex').value = archetype.accentColor;
+            
+            // Map customizable colors from archetype presets
+            document.getElementById('text-color').value = archetype.textColor || '#000000';
+            document.getElementById('social-color').value = archetype.socialColor || '#000000';
+            document.getElementById('avatar-bg-color').value = archetype.avatarBgColor || '#f472b6';
+            document.getElementById('avatar-bg-color-hex').value = archetype.avatarBgColor || '#f472b6';
+            
+            document.getElementById('font-family').value = archetype.fontFamily;
+
+            if (archetype.avatarType === 'emoji') {
+                document.getElementById('avatar-emoji').value = archetype.avatarValue;
+                document.getElementById('avatar-type-emoji').checked = true;
+                selectAvatarType('emoji');
+            }
+
+            const switches = [
+                { key: 'noBorder', className: 'no-border', selector: '[data-ability="no-border"]' },
+                { key: 'centered', className: 'centered', selector: '[data-ability="centered"]' },
+                { key: 'darkMode', className: 'dark-mode', selector: '[data-ability="dark-mode"]' },
+                { key: 'sidePillar', className: 'side-pillar', selector: '[data-ability="side-pillar"]' },
+                { key: 'airy', className: 'airy', selector: '[data-ability="airy"]' },
+                { key: 'avatarRound', className: 'avatar-round', selector: '[data-ability="avatar-round"]' },
+                { key: 'hideAccent', className: 'hide-accent', selector: '[data-ability="hide-accent"]' },
+                { key: 'compactSocial', className: 'compact-social', selector: '[data-ability="compact-social"]' },
+                { key: 'hidePhoto', className: 'hide-photo', selector: '[data-ability="hide-photo"]' },
+                { key: 'flatTheme', className: 'flat-theme', selector: '[data-ability="flat-theme"]' }
+            ];
+
+            switches.forEach(sw => {
+                if (archetype[sw.key]) {
+                    const btn = document.querySelector(sw.selector);
+                    if (btn) {
+                        btn.classList.add('toggle-active');
+                        if (sw.className === 'avatar-round') {
+                            document.getElementById('avatar').classList.add('rounded');
+                        } else if (sw.className === 'hide-accent') {
+                            document.getElementById('accent-bar').classList.add('hidden');
+                        } else if (sw.className === 'hide-photo') {
+                            document.getElementById('avatar-col').classList.add('hidden');
+                        } else if (sw.className === 'compact-social') {
+                            document.querySelectorAll('.social-icon').forEach(s => {
+                                s.classList.remove('w-8', 'h-8');
+                                s.classList.add('w-6', 'h-6');
+                            });
+                        } else {
+                            document.getElementById('main-sig').classList.add(sw.className);
+                        }
+                    }
+                }
+            });
+
+            updatePreview();
+        }
+
+        // Live update preview elements
+        function updatePreview() {
+            const name = document.getElementById('name').value || 'Your Name';
+            const title = document.getElementById('title').value || 'Title';
+            const company = document.getElementById('company').value || '';
+            const email = document.getElementById('email').value || 'hello@example.com';
+            const phone = document.getElementById('phone').value || '';
+            const website = document.getElementById('website').value || '';
+
+            const textColor = document.getElementById('text-color').value;
+            const socialColor = document.getElementById('social-color').value;
+
+            document.getElementById('prev-name').innerText = name;
+            document.getElementById('prev-name').style.color = textColor;
+            document.getElementById('prev-meta').innerText = company ? `${title} @ ${company}` : title;
+            document.getElementById('prev-meta').style.color = textColor;
+            document.getElementById('prev-email').innerText = email;
+            document.getElementById('prev-contacts').style.color = textColor;
+
+            // Update Social Icons
+            document.querySelectorAll('.social-icon').forEach(icon => {
+                icon.style.backgroundColor = socialColor;
+            });
+
+            // Phone
+            const prevPhoneRow = document.getElementById('prev-phone');
+            if (phone) {
+                document.getElementById('prev-phone-val').innerText = phone;
+                prevPhoneRow.classList.remove('hidden');
+            } else {
+                prevPhoneRow.classList.add('hidden');
+            }
+
+            // Website
+            const prevWebsiteRow = document.getElementById('prev-website');
+            if (website) {
+                document.getElementById('prev-website-val').innerText = website;
+                prevWebsiteRow.classList.remove('hidden');
+            } else {
+                prevWebsiteRow.classList.add('hidden');
+            }
+
+            // Font configurations
+            const font = document.getElementById('font-family').value;
+            const previewBox = document.getElementById('main-sig');
+            previewBox.style.fontFamily = font;
+
+            // Colors mapping
+            const accentColor = document.getElementById('accent-color').value;
+            document.getElementById('accent-color-hex').value = accentColor;
+            
+            const accentBar = document.getElementById('accent-bar');
+            accentBar.style.backgroundColor = accentColor;
+
+            if (previewBox.classList.contains('side-pillar')) {
+                previewBox.style.borderLeftColor = accentColor;
+            } else {
+                previewBox.style.borderLeftColor = '#000000';
+            }
+
+            // Render dynamic Social Media handles (maximum of 3 active)
+            const activeSocials = getActiveSocials();
+            const isStacked = document.getElementById('main-sig').classList.contains('compact-social');
+            
+            // Hide all social icons first
+            ['prev-li', 'prev-tw', 'prev-ig', 'prev-gh'].forEach(id => {
+                const icon = document.getElementById(id);
+                icon.classList.add('hidden');
+                // Reset styling
+                icon.classList.remove('w-8', 'h-8', 'w-6', 'h-6');
+                icon.classList.add(isStacked ? 'w-6' : 'w-8', isStacked ? 'h-6' : 'h-8');
+            });
+
+            // Map and show active socials
+            activeSocials.forEach(s => {
+                let prevId = '';
+                if (s.id === 'linkedin') prevId = 'prev-li';
+                else if (s.id === 'twitter') prevId = 'prev-tw';
+                else if (s.id === 'instagram') prevId = 'prev-ig';
+                else if (s.id === 'github') prevId = 'prev-gh';
+                
+                if (prevId) {
+                    document.getElementById(prevId).classList.remove('hidden');
+                }
+            });
+
+            // Stacking logic
+            const socialRow = document.querySelector('.social-row');
+            if (isStacked) {
+                socialRow.classList.add('flex-col', 'items-start');
+                socialRow.classList.remove('flex-row');
+            } else {
+                socialRow.classList.remove('flex-col', 'items-start');
+                socialRow.classList.add('flex-row');
+            }
+
+            // Avatar rendering
+            const avatarType = document.querySelector('input[name="avatar-type"]:checked').value;
+            const avatarBox = document.getElementById('avatar');
+            const avatarBgColor = document.getElementById('avatar-bg-color').value;
+            avatarBox.style.backgroundColor = avatarBgColor;
+            
+            if (avatarType === 'emoji') {
+                const emoji = document.getElementById('avatar-emoji').value || '👤';
+                avatarBox.innerHTML = emoji;
+                avatarBox.style.backgroundImage = 'none';
+            } else {
+                if (uploadedAvatarBase64) {
+                    avatarBox.innerHTML = '';
+                    avatarBox.style.backgroundImage = `url('${uploadedAvatarBase64}')`;
+                    avatarBox.style.backgroundSize = 'cover';
+                    avatarBox.style.backgroundPosition = 'center';
+                } else {
+                    avatarBox.innerHTML = '👤';
+                    avatarBox.style.backgroundImage = 'none';
+                }
+            }
+
+            // Card background mapping
+            const cardBgVal = document.getElementById('card-bg-val').value;
+            const darkModeActive = previewBox.classList.contains('dark-mode');
+            
+            if (cardBgVal !== 'transparent') {
+                previewBox.style.backgroundColor = cardBgVal;
+            } else {
+                previewBox.style.backgroundColor = darkModeActive ? '#000000' : '#ffffff';
+            }
+        }
+
+        function setCardBg(colorStr) {
+            document.getElementById('card-bg-val').value = colorStr;
+            // Trace back and remove visual active class
+            document.querySelectorAll('[onclick^="setCardBg"]').forEach(btn => {
+                btn.classList.remove('toggle-active', 'bg-yellow-100');
+            });
+            // Find and highlight active button
+            const activeBtn = Array.from(document.querySelectorAll('[onclick^="setCardBg"]')).find(btn => btn.getAttribute('onclick').includes(colorStr));
+            if (activeBtn) {
+                activeBtn.classList.add('toggle-active');
+            }
+            updatePreview();
+            StatsEngine.trackEvent('card_bg_selected', colorStr);
+        }
+
+        function handleOptionalEmail() {
+            if (document.getElementById('email-opt-in').checked) {
+                const email = document.getElementById('user-email-capture').value;
+                if (!email) { showToast('⚠️ Please enter an email address.'); return; }
+                const html = compileSignatureHTML();
+                BackendMock.simulateEmail(email, html);
+                showToast('📧 Signature sent to ' + email);
+            }
+        }
+
+        // Toggle user ability button clicks
+        function toggleAbility(btn, className) {
+            StatsEngine.trackEvent('toggle_used', className);
+            const sig = document.getElementById('main-sig');
+            const avatar = document.getElementById('avatar');
+            const accent = document.getElementById('accent-bar');
+            const textColorInput = document.getElementById('text-color');
+
+            btn.classList.toggle('toggle-active');
+
+            if (className === 'avatar-round') {
+                avatar.classList.toggle('rounded');
+            } else if (className === 'hide-accent') {
+                accent.classList.toggle('hidden');
+            } else if (className === 'hide-photo') {
+                document.getElementById('avatar-col').classList.toggle('hidden');
+            } else if (className === 'compact-social') {
+                // Now handled by logic in updatePreview to manage stacking
+                sig.classList.toggle('compact-social');
+            } else if (className === 'dark-mode') {
+                sig.classList.toggle('dark-mode');
+                // SMART COLOR DETECTION: If black, switch to white on dark mode, otherwise keep user choice
+                if (sig.classList.contains('dark-mode') && textColorInput.value === '#000000') {
+                    textColorInput.value = '#ffffff';
+                } else if (!sig.classList.contains('dark-mode') && textColorInput.value === '#ffffff') {
+                    textColorInput.value = '#000000';
+                }
+            } else {
+                sig.classList.toggle(className);
+            }
+            updatePreview();
+        }
+
+
+        // --- EXPORT SIGNATURE & PRODUCTION HTML ENGINE ---
+
+        // Compiles highly compatible inline HTML code matching exactly user specifications
+        function compileSignatureHTML() {
+            const name = document.getElementById('name').value || 'Your Name';
+            const title = document.getElementById('title').value || 'Title';
+            const company = document.getElementById('company').value || '';
+            const email = document.getElementById('email').value || 'hello@example.com';
+            const phone = document.getElementById('phone').value || '';
+            const website = document.getElementById('website').value || '';
+            const accentColor = document.getElementById('accent-color').value || '#fbbf24';
+            const fontFamily = document.getElementById('font-family').value || 'Arial, sans-serif';
+
+            const sig = document.getElementById('main-sig');
+            const noBorder = sig.classList.contains('no-border');
+            const centered = sig.classList.contains('centered');
+            const darkMode = sig.classList.contains('dark-mode');
+            const sidePillar = sig.classList.contains('side-pillar');
+            const airy = sig.classList.contains('airy');
+            const avatarRound = document.getElementById('avatar').classList.contains('rounded');
+            const hideAccent = document.getElementById('accent-bar').classList.contains('hidden');
+            const hidePhoto = document.getElementById('avatar-col').classList.contains('hidden');
+            const compactSocial = document.querySelectorAll('.social-icon')[0]?.classList.contains('w-6') || false;
+            const flatTheme = sig.classList.contains('flat-theme');
+
+            // Render Avatar elements
+            const avatarType = document.querySelector('input[name="avatar-type"]:checked').value;
+            const avatarRoundRadius = avatarRound ? '50%' : '0px';
+            let avatarHTML = '';
+
+            if (avatarType === 'emoji') {
+                const emoji = document.getElementById('avatar-emoji').value || '👤';
+                avatarHTML = `
+                    <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse;">
+                        <tr>
+                            <td align="center" valign="middle" style="width: 80px; height: 80px; background-color: ${document.getElementById('avatar-bg-color').value}; border: 3px solid #000000; font-size: 36px; line-height: 80px; text-align: center; vertical-align: middle; border-radius: ${avatarRoundRadius};">
+                                ${emoji}
+                            </td>
+                        </tr>
+                    </table>
+                `;
+            } else {
+                if (uploadedAvatarBase64) {
+                    avatarHTML = `
+                        <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse;">
+                            <tr>
+                                <td align="center" valign="middle" style="width: 80px; height: 80px; border: 3px solid #000000; overflow: hidden; border-radius: ${avatarRoundRadius};">
+                                    <img src="${uploadedAvatarBase64}" width="80" height="80" style="display: block; width: 80px; height: 80px; object-fit: cover; border-radius: ${avatarRoundRadius};" alt="Avatar">
+                                </td>
+                            </tr>
+                        </table>
+                    `;
+                } else {
+                    avatarHTML = `
+                        <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse;">
+                            <tr>
+                                <td align="center" valign="middle" style="width: 80px; height: 80px; background-color: ${document.getElementById('avatar-bg-color').value}; border: 3px solid #000000; font-size: 36px; line-height: 80px; text-align: center; vertical-align: middle; border-radius: ${avatarRoundRadius};">
+                                    👤
+                                </td>
+                            </tr>
+                        </table>
+                    `;
+                }
+            }
+
+            // Container structural specs
+            const cardBgVal = document.getElementById('card-bg-val').value;
+            const bgColor = cardBgVal !== 'transparent' ? cardBgVal : (darkMode ? '#000000' : '#ffffff');
+            
+            // Respect the user's manual text color choice
+            const textColor = document.getElementById('text-color').value;
+            const metaColor = document.getElementById('text-color').value; // Sync metadata color to main text color for aesthetic cohesion
+            const paddingVal = airy ? '32px' : '16px';
+            const containerBorder = noBorder ? 'none' : '4px solid #000000';
+            const containerShadow = (noBorder || flatTheme) ? 'none' : '4px 4px 0px 0px #000000';
+
+            // Social handle compilation (Dynamically capped to max 3 items)
+            const activeSocials = getActiveSocials();
+            let socialHTML = '';
+
+            if (activeSocials.length > 0) {
+                const size = compactSocial ? '20px' : '26px';
+                const fSize = compactSocial ? '8px' : '10px';
+                const customSocialColor = document.getElementById('social-color').value;
+                const isStacked = sig.classList.contains('compact-social');
+                
+                const cells = activeSocials.map(s => {
+                    const cleanHref = s.val.startsWith('http') ? s.val : `https://${s.prefix}/${s.val}`;
+                    // Automatically choose high contrast text color (white or black) for the social initials based on background picker
+                    const iconColor = "#ffffff"; 
+                    
+                    return `
+                        <td style="padding-right: 6px; padding-bottom: ${isStacked ? '4px' : '0px'}; display: ${isStacked ? 'block' : 'table-cell'};">
+                            <a href="${cleanHref}" target="_blank" style="text-decoration: none; display: inline-block; width: ${size}; height: ${size}; border: 2px solid ${customSocialColor}; background-color: ${customSocialColor}; color: ${iconColor}; text-align: center; line-height: ${size}; font-size: ${fSize}; font-weight: bold; font-family: sans-serif; text-transform: uppercase;">
+                                ${s.label}
+                            </a>
+                        </td>
+                    `;
+                }).join('');
+
+                socialHTML = `
+                    <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; margin-top: 14px; ${centered ? 'margin-left: auto; margin-right: auto;' : ''}">
+                        <tr>${cells}</tr>
+                    </table>
+                `;
+            }
+
+            // Side Pillar style
+            const sidePillarStyle = sidePillar ? `border-left: 10px solid ${accentColor} !important;` : '';
+
+            // Colored accent bar row
+            const barHTML = hideAccent ? '' : `
+                <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; margin-bottom: 10px; ${centered ? 'margin-left: auto; margin-right: auto;' : ''}">
+                    <tr>
+                        <td style="width: 40px; height: 6px; background-color: ${accentColor}; border: 2px solid #000000;"></td>
+                    </tr>
+                </table>
+            `;
+
+            // Photo HTML Cell (Collapses naturally if hidePhoto is active)
+            let avatarHTMLCell = '';
+            if (!hidePhoto) {
+                avatarHTMLCell = `
+                    <!-- Photo Col -->
+                    <td valign="top" style="${centered ? 'display: block; width: 100%; text-align: center; margin-bottom: 16px;' : 'width: 80px; padding-right: 20px;'}">
+                        <div style="${centered ? 'display: inline-block;' : ''}">
+                            ${avatarHTML}
+                        </div>
+                    </td>
+                `;
+            }
+
+            return `
+<table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; font-family: ${fontFamily}; color: ${textColor}; background-color: ${bgColor}; padding: ${paddingVal}; border: ${containerBorder}; box-shadow: ${containerShadow}; ${sidePillarStyle} max-width: 500px; width: 100%; text-align: left;">
+    <tr>
+        <td style="padding: ${paddingVal};">
+            <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; width: 100%;">
+                <tr style="${centered ? 'text-align: center;' : ''}">
+                    ${avatarHTMLCell}
+                    
+                    <!-- Content Col -->
+                    <td valign="top" style="${centered ? 'display: block; width: 100%; text-align: center;' : ''}">
+                        ${barHTML}
+                        <div style="font-size: 20px; font-weight: 800; text-transform: uppercase; line-height: 1.1; color: ${textColor}; margin: 0; letter-spacing: -0.5px;">
+                            ${name}
+                        </div>
+                        <div style="font-size: 12px; font-weight: bold; color: ${metaColor}; margin-top: 4px; margin-bottom: 10px; font-style: italic;">
+                            ${company ? title + ' @ ' + company : title}
+                        </div>
+                        
+                        <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse; font-size: 11px; font-weight: bold; color: ${textColor}; ${centered ? 'margin-left: auto; margin-right: auto;' : ''}">
+                            <tr>
+                                <td style="padding-bottom: 3px;">
+                                    <span style="background-color: #000000; color: #ffffff; padding: 1px 4px; font-size: 8px; margin-right: 6px; font-family: monospace;">E</span> <a href="mailto:${email}" style="color: ${textColor}; text-decoration: none;">${email}</a>
+                                </td>
+                            </tr>
+                            ${phone ? `
+                            <tr>
+                                <td style="padding-bottom: 3px;">
+                                    <span style="background-color: #000000; color: #ffffff; padding: 1px 4px; font-size: 8px; margin-right: 6px; font-family: monospace;">M</span> <a href="tel:${phone}" style="color: ${textColor}; text-decoration: none;">${phone}</a>
+                                </td>
+                            </tr>` : ''}
+                            ${website ? `
+                            <tr>
+                                <td>
+                                    <span style="background-color: #000000; color: #ffffff; padding: 1px 4px; font-size: 8px; margin-right: 6px; font-family: monospace;">W</span> <a href="${website.startsWith('http') ? website : 'https://' + website}" target="_blank" style="color: ${textColor}; text-decoration: none;">${website}</a>
+                                </td>
+                            </tr>` : ''}
+                        </table>
+                        
+                        ${socialHTML}
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+            `.trim();
+        }
+
+        // Action Buttons animations
+        function animateSuccessButton(btn, originalHTML) {
+            btn.innerHTML = `
+                <span class="text-xl">✅</span>
+                <span>Copied Successfully!</span>
+            `;
+            btn.classList.remove('bg-yellow-300', 'bg-pink-300', 'hover:bg-yellow-400', 'hover:bg-pink-400');
+            btn.classList.add('bg-emerald-300', 'text-black');
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.classList.remove('bg-emerald-300');
+                if (btn.id === 'btn-copy-rich') btn.classList.add('bg-yellow-300', 'hover:bg-yellow-400');
+                else btn.classList.add('bg-pink-300', 'hover:bg-pink-400');
+            }, 2000);
+        }
+
+        // 1. Copy Rich Text formats (Gmail direct paste compatible)
+        function copyRichText() {
+            const html = compileSignatureHTML();
+            const temp = document.createElement('div');
+            temp.style.position = 'absolute';
+            temp.style.left = '-9999px';
+            temp.style.top = '-9999px';
+            temp.innerHTML = html;
+            document.body.appendChild(temp);
+
+            const btn = document.getElementById('btn-copy-rich');
+            const originalHTML = btn.innerHTML;
+
+            try {
+                const text = temp.innerText;
+                const blobHTML = new Blob([html], { type: 'text/html' });
+                const blobText = new Blob([text], { type: 'text/plain' });
+
+                const item = new ClipboardItem({
+                    'text/html': blobHTML,
+                    'text/plain': blobText
+                });
+
+                navigator.clipboard.write([item]).then(() => {
+                    showToast('📋 Signature copied as Rich Text! Paste (Ctrl+V) directly into Gmail/Outlook Signature Settings.');
+                    animateSuccessButton(btn, originalHTML);
+                }, (err) => {
+                    selectAndCopyElement(temp);
+                    animateSuccessButton(btn, originalHTML);
+                });
+            } catch (e) {
+                selectAndCopyElement(temp);
+                animateSuccessButton(btn, originalHTML);
+            } finally {
+                setTimeout(() => document.body.removeChild(temp), 500);
+            }
+        }
+
+        function selectAndCopyElement(el) {
+            const range = document.createRange();
+            range.selectNode(el);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            try {
+                document.execCommand('copy');
+                showToast('📋 Signature copied as Rich Text! (Legacy browser compatibility active)');
+            } catch (err) {
+                showToast('❌ Copy failed. Please copy raw HTML manually.');
+            }
+            window.getSelection().removeAllRanges();
+        }
+
+        // 2. Download portable HTML file
+        function downloadHTMLFile() {
+            const signatureHTML = compileSignatureHTML();
+            const standalone = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My SigHub Signature</title>
+</head>
+<body style="margin:0; padding:30px; background-color:#f3f4f6;">
+    <div style="max-width:550px; margin:0 auto;">
+        ${signatureHTML}
+    </div>
+</body>
+</html>
+            `.trim();
+
+            const blob = new Blob([standalone], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            
+            const raw = document.getElementById('name').value || 'signature';
+            const clean = raw.toLowerCase().replace(/[^a-z0-9]/g, '_');
+
+            a.href = url;
+            a.download = `${clean}_sighub_signature.html`;
+            document.body.appendChild(a);
+            a.click();
+            
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 100);
+
+            showToast('💾 Signature portable HTML file downloaded successfully!');
+        }
+
+        // 3. Copy Raw HTML Code to clipboard
+        function copyRawHTML() {
+            const html = compileSignatureHTML();
+            const btn = document.getElementById('btn-copy-raw');
+            const originalHTML = btn.innerHTML;
+
+            navigator.clipboard.writeText(html).then(() => {
+                showToast('💻 Raw inline HTML code copied to clipboard!');
+                animateSuccessButton(btn, originalHTML);
+            }).catch(() => {
+                showToast('❌ Failed to copy raw HTML.');
+            });
+        }
+
+        // 4. Download high-resolution PNG image
+        function downloadPNG() {
+            const target = document.getElementById('main-sig');
+            showToast('🖼️ Rendering high-resolution PNG image...');
+
+            const options = {
+                scale: 2,
+                backgroundColor: null,
+                useCORS: true,
+                logging: false
+            };
+
+            html2canvas(target, options).then(canvas => {
+                const url = canvas.toDataURL('image/png');
+                const a = document.createElement('a');
+
+                const raw = document.getElementById('name').value || 'signature';
+                const clean = raw.toLowerCase().replace(/[^a-z0-9]/g, '_');
+
+                a.href = url;
+                a.download = `${clean}_sighub_signature.png`;
+                document.body.appendChild(a);
+                a.click();
+
+                setTimeout(() => document.body.removeChild(a), 100);
+                showToast('🖼️ Signature PNG image downloaded successfully!');
+            }).catch(() => {
+                showToast('❌ Failed to generate PNG. Try Copy options instead.');
+            });
+        }
+
+
+        // --- BILLING / PAYMENT FLOW CONTROLLERS ---
+
+        function clickGenerateButton() {
+            openCheckout();
+        }
+
+        function openCheckout() {
+            const modal = document.getElementById('checkout-modal');
+            const card = document.getElementById('modal-card');
+            
+            // Pre-fill checkout email with contact details email if set
+            const contactEmail = document.getElementById('email')?.value || '';
+            const checkoutEmailEl = document.getElementById('checkout-email');
+            if (checkoutEmailEl && contactEmail) {
+                checkoutEmailEl.value = contactEmail;
+            }
+
+            modal.classList.remove('hidden');
+            card.classList.add('modal-animate');
+        }
+
+        function closeCheckout() {
+            const modal = document.getElementById('checkout-modal');
+            const card = document.getElementById('modal-card');
+            
+            card.classList.remove('modal-animate');
+            modal.classList.add('hidden');
+        }
+
+        async function initiateStripeCheckout(event) {
+            event.preventDefault();
+
+            const emailInput = document.getElementById('checkout-email');
+            const email = emailInput ? emailInput.value.trim() : '';
+            if (!email || !email.includes('@')) {
+                showToast('❌ Please enter a valid email address.');
+                return;
+            }
+
+            const signatureHtml = compileSignatureHTML();
+            const payBtn = document.getElementById('pay-button');
+            if (payBtn) {
+                payBtn.disabled = true;
+                payBtn.innerHTML = '<span>Redirecting to Stripe... ⏳</span>';
+            }
+
+            try {
+                const res = await fetch('/api/create-checkout-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: email,
+                        signatureHtml: signatureHtml,
+                        archetype: currentArchetypeKey || 'custom'
+                    })
+                });
+
+                const data = await res.json();
+                if (!res.ok || !data.url) {
+                    throw new Error(data.error || 'Failed to create Stripe checkout session.');
+                }
+
+                showToast('🔒 Redirecting to Stripe Checkout...');
+                window.location.href = data.url;
+            } catch (error) {
+                console.error('Checkout error:', error);
+                showToast(`❌ ${error.message || 'Checkout failed. Please try again.'}`);
+                if (payBtn) {
+                    payBtn.disabled = false;
+                    payBtn.innerHTML = '<span>Pay $1.99 with Stripe</span><span>➔</span>';
+                }
+            }
+        }
+
+        async function checkServerPaymentStatus(sessionId, retries = 0) {
+            showToast('🔄 Verifying payment status with server...');
+            try {
+                const response = await fetch(`/api/purchase-status/${sessionId}`);
+                if (!response.ok) {
+                    showToast('❌ Purchase session not found.');
+                    localStorage.removeItem('sighub_verified_session_id');
+                    return;
+                }
+                const data = await response.json();
+                if (data.status === 'paid') {
+                    isPaid = true;
+                    // Persist verified session ID so refreshes maintain access (server re-verifies on load)
+                    localStorage.setItem('sighub_verified_session_id', sessionId);
+                    unlockDownloads(false);
+                    // Clean query parameters from URL without losing session verification persistence
+                    if (window.location.search.includes('session_id=')) {
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                    }
+                } else if (data.status === 'pending') {
+                    if (retries < 10) {
+                        showToast(`⏳ Payment processing... Retrying (${retries + 1}/10)`);
+                        setTimeout(() => checkServerPaymentStatus(sessionId, retries + 1), 1500);
+                    } else {
+                        showToast('⚠️ Payment pending confirmation. Please refresh or check email.');
+                    }
+                }
+            } catch (err) {
+                console.error('Error checking purchase status:', err);
+                showToast('❌ Network error verifying purchase status.');
+            }
+        }
+
+        function unlockDownloads(isSilent) {
+            document.getElementById('btn-generate').classList.add('hidden');
+            
+            const panel = document.getElementById('export-panel');
+            panel.classList.remove('hidden');
+            panel.classList.add('unlock-animate');
+
+            if (!isSilent) {
+                showToast('🎉 Masterpiece successfully unlocked! High-converting signature files ready for export.');
+                triggerConfetti();
+            }
+        }
+
+
+        // --- PURE CANVAS CONFETTI ENGINE ---
+
+        function triggerConfetti() {
+            const canvas = document.createElement('canvas');
+            canvas.style.position = 'fixed';
+            canvas.style.top = '0';
+            canvas.style.left = '0';
+            canvas.style.width = '100vw';
+            canvas.style.height = '100vh';
+            canvas.style.pointerEvents = 'none';
+            canvas.style.zIndex = '9999';
+            document.body.appendChild(canvas);
+
+            const ctx = canvas.getContext('2d');
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            });
+
+            const colors = ['#f43f5e', '#3b82f6', '#fbbf24', '#10b981', '#a855f7', '#ec4899'];
+            const particles = [];
+
+            for (let i = 0; i < 120; i++) {
+                particles.push({
+                    x: width / 2,
+                    y: height * 0.7,
+                    vx: (Math.random() - 0.5) * 15,
+                    vy: (Math.random() - 0.8) * 20 - 5,
+                    size: Math.random() * 8 + 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    rotation: Math.random() * 360,
+                    rotationSpeed: (Math.random() - 0.5) * 10
+                });
+            }
+
+            function animate() {
+                if (particles.length === 0) {
+                    document.body.removeChild(canvas);
+                    return;
+                }
+
+                ctx.clearRect(0, 0, width, height);
+
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    const p = particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.5; // Gravity pull
+                    p.rotation += p.rotationSpeed;
+
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.rotation * Math.PI / 180);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                    ctx.restore();
+
+                    if (p.y > height || p.x < 0 || p.x > width) {
+                        particles.splice(i, 1);
+                    }
+                }
+
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+        }
+
+        // --- TOAST NOTIFICATIONS ---
+        let toastTimeout;
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.innerText = message;
+            toast.classList.add('show');
+            toast.style.opacity = '1';
+
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+                toast.style.opacity = '0';
+            }, 5000);
+        }
+    </script>
+</body>
+
+</html>

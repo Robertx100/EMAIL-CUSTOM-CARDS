@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support | SigHub</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
+    <!-- Load Configuration -->
+    <script src="config.js"></script>
+    <style>
+        body { 
+            font-family: 'Space Grotesk', sans-serif; 
+            background-color: #fbbf24; /* Yellow */
+        }
+        .neo-border { border: 4px solid #000; }
+        .neo-shadow { box-shadow: 8px 8px 0px 0px #000; }
+        .btn-press:active { transform: translate(4px, 4px); box-shadow: 0px 0px 0px 0px #000; }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen flex flex-col justify-between">
+    <div>
+        <header class="max-w-4xl mx-auto flex justify-between items-center mb-12">
+            <a href="index.html" class="neo-border bg-white px-4 py-2 neo-shadow font-black text-xl uppercase italic hover:rotate-[-2deg] transition-transform block">SIGHUB</a>
+            <nav class="flex gap-4">
+                <a href="index.html" class="font-bold underline uppercase text-sm hover:text-white">Home</a>
+                <a href="showcase.html" class="font-bold underline uppercase text-sm hover:text-white">Gallery</a>
+                <a href="builder.html" class="font-bold underline uppercase text-sm hover:text-white">Builder</a>
+            </nav>
+        </header>
+        
+        <main class="max-w-3xl mx-auto">
+            <section class="mb-12">
+                <h1 class="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-none mb-6">Need a <span class="bg-white px-4 neo-border">Hand?</span></h1>
+                <div class="bg-white neo-border p-6 neo-shadow">
+                    <p class="text-xl font-bold italic">The interns are standing by. We usually reply in under 2 hours unless we're hunting for bugs (or caffeine). You can write us here or email directly to <span id="support-email-text" class="bg-yellow-300 px-1 border border-black font-black break-all">support@sighub.com</span></p>
+                </div>
+            </section>
+            
+            <form id="support-form" class="space-y-6 bg-white neo-border p-8 neo-shadow mb-20" onsubmit="handleSupportSubmit(event)">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-1 flex flex-col">
+                        <label class="text-xs font-bold uppercase">Your Name</label>
+                        <input type="text" id="support-name" required placeholder="Alex Rivers" class="neo-border p-4 font-bold focus:bg-yellow-100 outline-none">
+                    </div>
+                    <div class="space-y-1 flex flex-col">
+                        <label class="text-xs font-bold uppercase">Email Address</label>
+                        <input type="email" id="support-email" required placeholder="alex@gmail.com" class="neo-border p-4 font-bold focus:bg-yellow-100 outline-none">
+                    </div>
+                </div>
+                <div class="space-y-1 flex flex-col">
+                    <label class="text-xs font-bold uppercase">What's the issue?</label>
+                    <textarea rows="4" id="support-msg" required placeholder="My signature photo looks tilted..." class="w-full neo-border p-4 font-bold focus:bg-yellow-100 outline-none resize-none"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-black text-white p-6 text-2xl font-black uppercase btn-press hover:bg-zinc-900 transition-colors">Send Message -></button>
+            </form>
+        </main>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="max-w-4xl mx-auto neo-border bg-black text-white p-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-bold">
+        <p>© 2026 SIGHUB — STYLISH INTERN-BUILT UTILITY.</p>
+        <div class="flex gap-4">
+            <a href="index.html" class="hover:underline text-yellow-300">Home</a>
+            <a href="showcase.html" class="hover:underline text-cyan-400">Gallery</a>
+            <a href="builder.html" class="hover:underline text-emerald-400">Builder</a>
+        </div>
+    </footer>
+
+    <!-- SUCCESS MODAL -->
+    <div id="success-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+        <div class="bg-white neo-border p-6 md:p-8 max-w-md w-full neo-shadow relative rotate-[-1deg] text-center space-y-6">
+            <div class="bg-emerald-400 p-3 neo-border text-center">
+                <h3 class="text-xl font-black uppercase tracking-tight">✉️ MESSAGE PREPARED</h3>
+            </div>
+            <p class="font-bold">We have formatted your message for support! Let's send this to our support team.</p>
+            <div class="bg-gray-100 p-3 border border-black text-left font-mono text-xs break-all rounded-sm">
+                <strong>To:</strong> <span id="modal-to-email">support@sighub.com</span><br>
+                <strong>From:</strong> <span id="modal-from-email">user@example.com</span><br>
+                <strong>Subject:</strong> SigHub Support Request<br>
+                <strong>Message:</strong> <span id="modal-body-text">...</span>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                <button onclick="sendMailto()" class="flex-1 bg-yellow-300 neo-border p-3 font-black uppercase text-xs btn-press hover:bg-yellow-400">
+                    🚀 Send via Mail Client
+                </button>
+                <button onclick="closeSuccessModal()" class="flex-1 bg-gray-200 neo-border p-3 font-black uppercase text-xs btn-press hover:bg-gray-300">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof SIGHUB_CONFIG !== 'undefined') {
+                document.getElementById('support-email-text').innerText = SIGHUB_CONFIG.supportEmail;
+                document.getElementById('modal-to-email').innerText = SIGHUB_CONFIG.supportEmail;
+            }
+        });
+
+        let preparedMailtoUrl = '';
+
+        function handleSupportSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('support-name').value;
+            const email = document.getElementById('support-email').value;
+            const msg = document.getElementById('support-msg').value;
+            const toEmail = typeof SIGHUB_CONFIG !== 'undefined' ? SIGHUB_CONFIG.supportEmail : 'support@sighub.com';
+
+            document.getElementById('modal-from-email').innerText = email;
+            document.getElementById('modal-body-text').innerText = msg.length > 80 ? msg.substring(0, 80) + '...' : msg;
+
+            const subject = encodeURIComponent(`SigHub Support Request - ${name}`);
+            const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${msg}`);
+            preparedMailtoUrl = `mailto:${toEmail}?subject=${subject}&body=${body}`;
+
+            document.getElementById('success-modal').classList.remove('hidden');
+        }
+
+        function sendMailto() {
+            if (preparedMailtoUrl) {
+                window.location.href = preparedMailtoUrl;
+            }
+            closeSuccessModal();
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('success-modal').classList.add('hidden');
+            document.getElementById('support-form').reset();
+        }
+    </script>
+</body>
+</html>
